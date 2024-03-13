@@ -39,7 +39,7 @@ The script relies on the following dependencies:
 4. **Running the Script**: Execute the script using the following command:
 
     ```bash
-    ts-node index.ts
+    ts-node src/index.ts
     ```
 
     This will start the script, which will continuously monitor new blocks for transactions related to the specified contract address.
