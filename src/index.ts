@@ -3,7 +3,7 @@ import { sha256 } from "@cosmjs/crypto";
 import { toHex } from "@cosmjs/encoding";
 import "dotenv/config";
 import { PositionDetails } from "./types";
-import { readFile, updateJson } from "./utils/utils";
+import { readFile, updateJson } from "./utils";
 
 const rpc: string = `${process.env.RPC}`; // Osmosis RPC
 const contractAddress: string =
@@ -28,32 +28,7 @@ const start = async (): Promise<void> => {
     let height: number = positionDetails.lastBlock;
 
     for (; height < latestHeight; height++) {
-      const txs: readonly Uint8Array[] = (await client.getBlock(height)).txs;
-      for (const encodedTransaction of txs) {
-        const id: string = toHex(sha256(encodedTransaction));
-        const tx = await client.getTx(id);
-        if (!tx || !tx.events) continue;
-
-        for (const event of tx.events) {
-          if (
-            event.type === "wasm" &&
-            event.attributes
-              .find((attr: Attribute) => attr.key === "_contract_address")
-              ?.value.toLowerCase() === contractAddress
-          ) {
-            const actionAttribute: Attribute | undefined =
-              event.attributes.find((attr: Attribute) => attr.key === "action");
-            if (actionAttribute) {
-              const action: string = actionAttribute.value;
-              if (actions.includes(action)) {
-                updatePosition(action, event.attributes);
-              }
-            }
-          }
-        }
-        positionDetails.lastBlock = height;
-      }
-      console.log(positionDetails);
+      await readTxEvents(client, height);
     }
 
     updateJson(positionDetails);
@@ -63,39 +38,7 @@ const start = async (): Promise<void> => {
 
       if (currentHeight > height) {
         height++;
-        const txs: readonly Uint8Array[] = (await client.getBlock(height)).txs;
-        for (const encodedTransaction of txs) {
-          const id: string = toHex(sha256(encodedTransaction));
-          const tx = await client.getTx(id);
-          if (!tx || !tx.events) continue;
-
-          for (const event of tx.events) {
-            if (
-              event.type === "wasm" &&
-              event.attributes
-                .find((attr: Attribute) => attr.key === "_contract_address")
-                ?.value.toLowerCase() === contractAddress
-            ) {
-              const actionAttribute: Attribute | undefined =
-                event.attributes.find(
-                  (attr: Attribute) => attr.key === "action"
-                );
-              if (actionAttribute) {
-                const action: string = actionAttribute.value;
-                if (actions.includes(action)) {
-                  updatePosition(action, event.attributes);
-                  console.log(
-                    event.attributes.find(
-                      (attr: Attribute) => attr.key === "_contract_address"
-                    )?.value
-                  );
-                  console.log(id);
-                }
-              }
-            }
-          }
-          positionDetails.lastBlock = height;
-        }
+        await readTxEvents(client, height);
         updateJson(positionDetails);
       }
     }
@@ -163,4 +106,40 @@ function updatePosition(
   }
 }
 
+const readTxEvents = async (client: CosmWasmClient, height: number) => {
+  const txs: readonly Uint8Array[] = (await client.getBlock(height)).txs;
+  for (const encodedTransaction of txs) {
+    const id: string = toHex(sha256(encodedTransaction));
+    const tx = await client.getTx(id);
+    if (!tx || !tx.events) continue;
+
+    for (const event of tx.events) {
+      if (
+        event.type === "wasm" &&
+        event.attributes
+          .find((attr: Attribute) => attr.key === "_contract_address")
+          ?.value.toLowerCase() === contractAddress
+      ) {
+        const actionAttribute: Attribute | undefined =
+          event.attributes.find(
+            (attr: Attribute) => attr.key === "action"
+          );
+        if (actionAttribute) {
+          const action: string = actionAttribute.value;
+          if (actions.includes(action)) {
+            updatePosition(action, event.attributes);
+            console.log(
+              event.attributes.find(
+                (attr: Attribute) => attr.key === "_contract_address"
+              )?.value
+            );
+            console.log(id);
+          }
+        }
+      }
+    }
+    positionDetails.lastBlock = height;
+  }
+  return positionDetails
+}
 start();

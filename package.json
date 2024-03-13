@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "monitor": "npx ts-node src/index.ts",
+    "compute-collateral": "npx ts-node src/computeCollateralisationRatio.ts"
+  },
   "dependencies": {
     "@cosmjs/cosmwasm-stargate": "^0.32.3",
     "@cosmjs/proto-signing": "^0.32.3",

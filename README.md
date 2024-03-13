@@ -6,7 +6,6 @@ This TypeScript script is designed to interact with a CosmWasm smart contract de
 
 - Node.js and yarn installed on your system.
 - Ensure you have the required dependencies installed via yarn.
-- Access to a CosmWasm smart contract deployed on the Osmosis network.
 - Set up environment variables using a `.env` file with the required RPC endpoint.
 
 ## Dependencies
@@ -30,9 +29,11 @@ The script relies on the following dependencies:
 
     ```plaintext
     RPC=<Osmosis_RPC_URL>
+    COINAPI_KEY=<Coin_api_key>
     ```
 
     Replace `<Osmosis_RPC_URL>` with the actual RPC URL for the Osmosis network.
+    Replace `<Coin_api_key>` with the actual Coin API key.
 
 3. **Configure Contract Address**: Replace the `contractAddress` variable with the actual contract address of your deployed CosmWasm smart contract.
 

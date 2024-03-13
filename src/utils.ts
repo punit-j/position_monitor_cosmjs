@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import "dotenv/config";
 import axios from "axios";
-import { PositionDetails } from "../types";
+import { PositionDetails } from "./types";
 
 const dataPath = "./data.json";
 
