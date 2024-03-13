@@ -1,0 +1,14 @@
+{
+  "name": "mars_test_task",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.32.3",
+    "@cosmjs/proto-signing": "^0.32.3",
+    "@types/node": "^20.11.26",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security"
+  }
+}
